@@ -13,9 +13,15 @@ function formatWithDateFns(dateString) {
 }
 
 function cutText(text, cutSize) {
-  let res = text.slice(0, cutSize);
-  res += '...';
-  return res;
+  if (text.length <= cutSize) {
+    return text;
+  }
+
+  const lastSpaceIndex = text.lastIndexOf(' ', cutSize);
+  let truncatedText = text.slice(0, lastSpaceIndex);
+  truncatedText += '...';
+
+  return truncatedText;
 }
 
 export default class MovieItem extends React.Component {
