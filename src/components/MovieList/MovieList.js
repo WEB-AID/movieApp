@@ -1,11 +1,12 @@
 import React from 'react';
 
 import MovieItem from '../MovieItem/MovieItem';
+import Pagination from '../Pagination/Pagination';
 
 import './MovieList.css';
 
 export default function MovieList(props) {
-  const { list, genresArr } = props;
+  const { list, genresArr, pages, onChange, current } = props;
 
   const elements = list.map((item) => (
     <MovieItem
@@ -19,5 +20,21 @@ export default function MovieList(props) {
     />
   ));
 
-  return <ul className="movieList">{elements}</ul>;
+  return (
+    <div>
+      <ul className="movieList">{elements}</ul>
+      <Pagination
+        basic
+        style={{
+          display: 'flex',
+          width: '100%',
+          justifyContent: 'center',
+          marginBottom: '16px',
+        }}
+        pages={pages}
+        onChange={onChange}
+        current={current}
+      />
+    </div>
+  );
 }

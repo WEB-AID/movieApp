@@ -5,3 +5,9 @@
   background: rgba(0, 0, 0, 0.05);
   border-radius: 4px;
 }
+
+.inputClass {
+  display: flex;
+  width: 90%;
+  margin: 0 auto;
+}

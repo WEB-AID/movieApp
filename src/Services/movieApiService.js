@@ -8,13 +8,13 @@ export default class MovieApiService {
     },
   };
 
-  async getReturnTitleMovies() {
+  async getReturnTitleMovies(value, page) {
     const res = await fetch(
-      'https://api.themoviedb.org/3/search/movie?query=the&include_adult=false&language=en-US&page=1',
+      `https://api.themoviedb.org/3/search/movie?query=${value}&include_adult=false&language=en-US&page=${page}`,
       this.apiOptions
     );
     const resFinal = await res.json();
-    return resFinal.results;
+    return resFinal;
   }
 
   async getGenresArr() {

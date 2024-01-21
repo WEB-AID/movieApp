@@ -1,32 +1,49 @@
 import React from 'react';
 import './App.css';
-import { formatDistanceToNow } from 'date-fns';
-import { DatePicker, Spin, Alert, message } from 'antd';
+import { Spin, Alert, message } from 'antd';
 
 import MovieApiService from '../../Services/movieApiService';
 import MovieList from '../MovieList/MovieList';
+import SearchLine from '../SearchLine/SearchLine';
 
 export default class App extends React.Component {
   movieApiService = new MovieApiService();
+
+  constructor(props) {
+    super(props);
+    this.getList = this.getList.bind(this);
+    this.inputRequestFilms = this.inputRequestFilms.bind(this);
+  }
 
   state = {
     list: [],
     genresList: [],
     isLoading: true,
+    isListLoading: true,
     error: false,
+    pages: null,
+    page: 1,
+    value: 'the',
   };
 
   componentDidMount() {
-    this.getList();
+    this.getList(this.state.value);
     this.getGenres();
     this.checkNetworkStatus();
   }
 
-  async getList() {
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.page !== this.state.page || prevState.value !== this.state.value) {
+      this.getList(this.state.value);
+    }
+  }
+
+  async getList(value) {
     try {
-      const res = await this.movieApiService.getReturnTitleMovies();
+      const res = await this.movieApiService.getReturnTitleMovies(value, this.state.page);
       this.setState(() => ({
-        list: res,
+        list: res.results,
+        pages: res.total_pages,
         error: false,
       }));
     } catch {
@@ -35,7 +52,19 @@ export default class App extends React.Component {
         error: true,
       }));
     }
+
+    this.setState(() => {
+      return {
+        isListLoading: false,
+      };
+    });
   }
+
+  onPageChanged = (page) => {
+    this.setState(() => ({
+      page,
+    }));
+  };
 
   getGenres() {
     this.movieApiService.getGenresArr().then((body) =>
@@ -46,6 +75,25 @@ export default class App extends React.Component {
         };
       })
     );
+  }
+
+  inputRequestFilms(value) {
+    if (value === '') {
+      this.setState(() => ({
+        value: 'the',
+        page: 1,
+      }));
+    } else {
+      this.setState(() => ({
+        value,
+      }));
+    }
+
+    this.setState(() => {
+      return {
+        isListLoading: true,
+      };
+    });
   }
 
   checkNetworkStatus() {
@@ -70,12 +118,23 @@ export default class App extends React.Component {
     return (
       <div>
         <header>
-          <span>{formatDistanceToNow(new Date(), { includeSeconds: true })}</span>
-          <span>
-            <DatePicker />
-          </span>
+          <SearchLine inputRequestFilms={this.inputRequestFilms} />
         </header>
-        <MovieList list={this.state.list} genresArr={this.state.genresList} />
+        {this.state.isListLoading ? (
+          <Spin tip="Loading" size="large">
+            <div className="content" />
+          </Spin>
+        ) : null}
+        {this.state.list.length === 0 ? (
+          <Alert message="Error" description="No such MOVIES!" type="error" showIcon />
+        ) : null}
+        <MovieList
+          list={this.state.list}
+          genresArr={this.state.genresList}
+          pages={this.state.pages}
+          onChange={this.onPageChanged}
+          current={this.state.page}
+        />
       </div>
     );
   }
