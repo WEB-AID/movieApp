@@ -9,6 +9,8 @@ import SearchLine from '../SearchLine/SearchLine';
 export default class App extends React.Component {
   movieApiService = new MovieApiService();
 
+  cookieName = 'MovieDBSession';
+
   constructor(props) {
     super(props);
     this.getList = this.getList.bind(this);
@@ -24,15 +26,17 @@ export default class App extends React.Component {
     pages: null,
     page: 1,
     value: 'the',
+    guestSessionID: null,
   };
 
   componentDidMount() {
     this.getList(this.state.value);
     this.getGenres();
     this.checkNetworkStatus();
+    this.getGuestSessionId();
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(pP, prevState) {
     if (prevState.page !== this.state.page || prevState.value !== this.state.value) {
       this.getList(this.state.value);
     }
@@ -77,6 +81,32 @@ export default class App extends React.Component {
     );
   }
 
+  getGuestSessionId() {
+    if (localStorage.getItem(this.cookieName) === null) {
+      this.movieApiService.createGuestSession().then((body) => {
+        this.setState(() => {
+          return {
+            guestSessionID: body.guest_session_id,
+          };
+        });
+        localStorage.setItem(this.cookieName, body.guest_session_id);
+      });
+    } else {
+      const sessionId = localStorage.getItem(this.cookieName);
+      this.setState(() => {
+        return {
+          guestSessionID: sessionId,
+        };
+      });
+    }
+  }
+
+  checkNetworkStatus() {
+    if (!navigator.onLine) {
+      message.error('There is connection problem. Please - check your Internet connection.');
+    }
+  }
+
   inputRequestFilms(value) {
     if (value === '') {
       this.setState(() => ({
@@ -94,12 +124,6 @@ export default class App extends React.Component {
         isListLoading: true,
       };
     });
-  }
-
-  checkNetworkStatus() {
-    if (!navigator.onLine) {
-      message.error('There is connection problem. Please - check your Internet connection.');
-    }
   }
 
   render() {
@@ -134,6 +158,7 @@ export default class App extends React.Component {
           pages={this.state.pages}
           onChange={this.onPageChanged}
           current={this.state.page}
+          guestSessionID={this.state.guestSessionID}
         />
       </div>
     );

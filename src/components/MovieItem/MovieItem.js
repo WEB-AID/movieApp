@@ -49,7 +49,7 @@ export default class MovieItem extends React.Component {
           <h1>{name}</h1>
           <div className="movieDate">{formatWithDateFns(date)}</div>
           <div className="movieGenres">{genresNamesArr}</div>
-          <div className="movieText">{cutText(text, 150)}</div>
+          <div className="movieText">{cutText(text, 120)}</div>
         </div>
       </li>
     );
