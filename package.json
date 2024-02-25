@@ -1,7 +1,6 @@
 {
   "name": "movies-app",
   "version": "0.1.0",
-  "homepage": "https://web-aid.github.io/movieApp",
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
