@@ -4,7 +4,8 @@ import { Spin, Alert, message } from 'antd';
 
 import MovieApiService from '../../Services/movieApiService';
 import MovieList from '../MovieList/MovieList';
-import SearchLine from '../SearchLine/SearchLine';
+import Header from '../Header/Header';
+import { MovieApiServiceProvider } from '../movieApiService-context/movieApiService-context';
 
 export default class App extends React.Component {
   movieApiService = new MovieApiService();
@@ -19,12 +20,14 @@ export default class App extends React.Component {
 
   state = {
     list: [],
+    activeSearch: true,
     genresList: [],
     isLoading: true,
     isListLoading: true,
     error: false,
-    pages: null,
+    results: null,
     page: 1,
+    ratedPage: 1,
     value: 'the',
     guestSessionID: null,
   };
@@ -40,14 +43,23 @@ export default class App extends React.Component {
     if (prevState.page !== this.state.page || prevState.value !== this.state.value) {
       this.getList(this.state.value);
     }
+
+    if (prevState.ratedPage !== this.state.ratedPage) {
+      this.getRatedList(this.state.value);
+    }
+
+    if (this.state.activeSearch !== prevState.activeSearch) {
+      if (this.state.activeSearch === false) this.getRatedList();
+      if (this.state.activeSearch === true) this.getList();
+    }
   }
 
-  async getList(value) {
+  async getList(value = 'the') {
     try {
       const res = await this.movieApiService.getReturnTitleMovies(value, this.state.page);
       this.setState(() => ({
+        results: res.total_results,
         list: res.results,
-        pages: res.total_pages,
         error: false,
       }));
     } catch {
@@ -64,10 +76,48 @@ export default class App extends React.Component {
     });
   }
 
+  async getRatedList() {
+    this.setState(() => {
+      return {
+        isListLoading: true,
+      };
+    });
+
+    try {
+      const res = await this.movieApiService.getRatedMovies(this.state.guestSessionID, this.state.ratedPage);
+      this.setState(() => {
+        return {
+          results: res.total_results,
+          list: res.results,
+          error: false,
+        };
+      });
+    } catch {
+      this.setState(() => {
+        return {
+          list: [],
+          error: true,
+        };
+      });
+    }
+
+    this.setState(() => {
+      return {
+        isListLoading: false,
+      };
+    });
+  }
+
   onPageChanged = (page) => {
-    this.setState(() => ({
-      page,
-    }));
+    if (this.state.activeSearch) {
+      this.setState(() => ({
+        page,
+      }));
+    } else {
+      this.setState(() => ({
+        ratedPage: page,
+      }));
+    }
   };
 
   getGenres() {
@@ -101,11 +151,18 @@ export default class App extends React.Component {
     }
   }
 
-  checkNetworkStatus() {
-    if (!navigator.onLine) {
-      message.error('There is connection problem. Please - check your Internet connection.');
+  changeListMode = (key) => {
+    if (key === 'Search') {
+      this.setState({
+        activeSearch: true,
+      });
     }
-  }
+    if (key === 'Rated') {
+      this.setState({
+        activeSearch: false,
+      });
+    }
+  };
 
   inputRequestFilms(value) {
     if (value === '') {
@@ -126,6 +183,12 @@ export default class App extends React.Component {
     });
   }
 
+  checkNetworkStatus() {
+    if (!navigator.onLine) {
+      message.error('There is connection problem. Please - check your Internet connection.');
+    }
+  }
+
   render() {
     if (this.state.isLoading) {
       return (
@@ -140,10 +203,12 @@ export default class App extends React.Component {
     }
 
     return (
-      <div>
-        <header>
-          <SearchLine inputRequestFilms={this.inputRequestFilms} />
-        </header>
+      <div className="mainWrapper">
+        <Header
+          changeListMode={this.changeListMode}
+          inputRequestFilms={this.inputRequestFilms}
+          activeSearch={this.state.activeSearch}
+        />
         {this.state.isListLoading ? (
           <Spin tip="Loading" size="large">
             <div className="content" />
@@ -152,14 +217,15 @@ export default class App extends React.Component {
         {this.state.list.length === 0 ? (
           <Alert message="Error" description="No such MOVIES!" type="error" showIcon />
         ) : null}
-        <MovieList
-          list={this.state.list}
-          genresArr={this.state.genresList}
-          pages={this.state.pages}
-          onChange={this.onPageChanged}
-          current={this.state.page}
-          guestSessionID={this.state.guestSessionID}
-        />
+        <MovieApiServiceProvider value={this.state.genresList}>
+          <MovieList
+            list={this.state.list}
+            results={this.state.results}
+            onChange={this.onPageChanged}
+            current={this.state.activeSearch ? this.state.page : this.state.ratedPage}
+            guestSessionID={this.state.guestSessionID}
+          />
+        </MovieApiServiceProvider>
       </div>
     );
   }

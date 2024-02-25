@@ -7,6 +7,15 @@ export default class SearchLine extends React.Component {
   state = {};
 
   render() {
-    return <PaginAnt current={this.props.current} onChange={this.props.onChange} total={this.props.pages} />;
+    return (
+      <PaginAnt
+        className="pagination1"
+        current={this.props.current}
+        onChange={this.props.onChange}
+        total={this.props.results}
+        showSizeChanger={false}
+        pageSize={20}
+      />
+    );
   }
 }

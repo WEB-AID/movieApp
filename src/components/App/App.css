@@ -11,3 +11,14 @@
   width: 90%;
   margin: 0 auto;
 }
+
+.mainWrapper {
+  width: 1100px;
+  margin: 0 auto 0 auto;
+}
+
+@media (max-width: 1100px) {
+  .mainWrapper {
+    width: 100%;
+  }
+}

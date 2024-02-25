@@ -1,34 +1,89 @@
 .movieCard {
-  display: flex;
-  gap: 20px;
   width: 450px;
   height: 280px;
   border: 2px solid black;
   box-shadow: 2px 2px 6px 2px rgba(0, 0, 0, 0.2);
 }
 
+.filmImg {
+  height: 280px;
+  width: 180px;
+  position: absolute;
+}
+
 .movieDescription {
-  margin: 10px 10px 40px 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 280px;
+}
+
+.ratingCircle {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 10px;
+  right: 9px;
+  border: 3px solid;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .movieDescription h1 {
-  margin: 0;
+  margin: 0 45px 0 185px;
   padding: 0;
   font-size: 22px;
 }
 
 .movieDate {
-  margin-top: 10px;
+  margin-top: 2px;
+  margin-left: 185px;
 }
 
 .movieGenres {
-  margin-top: 8px;
+  margin-top: 2px;
+  margin-left: 185px;
 }
 
 .movieText {
-  margin-top: 8px;
+  margin-top: 2px;
+  margin-left: 185px;
 }
 
 .movieGerneBtn {
-  margin-right: 5px;
+  margin-right: 2px;
+}
+
+.rating {
+  margin-left: 185px;
+  margin-top: auto;
+  margin-bottom: 10px;
+}
+
+@media (max-width: 480px) {
+  .filmImg {
+    height: 100px;
+    width: auto;
+  }
+  .movieDescription h1 {
+    margin-left: 70px;
+  }
+  .movieDate {
+    margin-left: 70px;
+  }
+  .movieGenres {
+    margin-left: 70px;
+  }
+  .movieText {
+    margin-left: 0;
+    margin-top: 30px;
+  }
+  .rating {
+    margin-left: auto;
+    margin-top: auto;
+  }
 }
